@@ -1,0 +1,7 @@
+{
+    "name": "my-typescript-app",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon --exec tsx script.ts"
+    }
+}
