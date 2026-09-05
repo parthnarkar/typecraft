@@ -5,10 +5,9 @@ const menu = [
     { name: "Veggie", price: 9 },
 ]
 
-const cashInRegister = 100
+let cashInRegister = 100
 const orderQueue = []
 let nextOrderId = 1;
-console.log(nextOrderId);
 
 function addNewPizza(pizzaObj) {
     menu.push(pizzaObj)
@@ -25,10 +24,9 @@ function addNewPizza(pizzaObj) {
 
 function placeOrder(pizzaName) {
     const selectedPizza = menu.find(pizzaObj => pizzaObj.name === pizzaName)
-    cashInRegister += selectedPizza.price
+    cashInRegister = cashInRegister + selectedPizza.price
     const newOrder = { id: nextOrderId, pizza: selectedPizza, status: "ordered" }
     nextOrderId++;
-    console.log(nextOrderId);
     orderQueue.push(newOrder)
     return newOrder
 }
