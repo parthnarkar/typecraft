@@ -28,9 +28,9 @@ let nextOrderId = 1
 const orderQueue: Order[] = []
 
 function addNewPizza(pizzaObj: Omit<Pizza, "id">): Pizza {
-    let newPizza: Pizza = { 
-        id: nextPizzaId++, 
-        ...pizzaObj 
+    let newPizza: Pizza = {
+        id: nextPizzaId++,
+        ...pizzaObj
     }
     menu.push(newPizza)
     return newPizza;
@@ -51,6 +51,25 @@ function placeOrder(pizzaName: string): Order | undefined {
     orderQueue.push(newOrder)
     return newOrder
 }
+
+
+/**
+ * Challenge: add types our generic `addToArray` function. It should work
+ * for adding new pizzas to the `menu` and adding new orders to the `orderQueue`
+ */
+
+// ADDING GENERICS
+function addToArray<T>(array: T[], item: T) {
+    array.push(item)
+    return array
+}
+
+// example usage
+addToArray(menu, { id: nextPizzaId++, name: "Chicken Bacon Ranch", price: 12 })
+
+// Explicitly TYPED GENERIC : can't write `status: "done"` - not accepted
+addToArray<Order>(orderQueue, { id: nextOrderId++, pizza: menu[2], status: "completed" })
+
 
 function completeOrder(orderId: number): Order | undefined {
     const order = orderQueue.find(order => order.id === orderId)

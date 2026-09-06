@@ -10,3 +10,4 @@
 - [Utility Types - Partial<> included](utility-types.ts): TypeScript provides several utility types to facilitate common type transformations. These utilities are available globally.
 ![Utility Types](images/image1.png)
 - [Omit<> Utility Type](omit.ts)
+- [Generics](generics.ts)
