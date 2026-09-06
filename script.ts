@@ -27,8 +27,13 @@ let nextOrderId = 1
 // Typed Array
 const orderQueue: Order[] = []
 
-function addNewPizza(pizzaObj: Pizza): void {
-    menu.push({ id: nextPizzaId++, ...pizzaObj})
+function addNewPizza(pizzaObj: Omit<Pizza, "id">): Pizza {
+    let newPizza: Pizza = { 
+        id: nextPizzaId++, 
+        ...pizzaObj 
+    }
+    menu.push(newPizza)
+    return newPizza;
 }
 
 addNewPizza({ name: "Chicken Bacon Ranch", price: 12 })
