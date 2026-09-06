@@ -25,11 +25,11 @@ let nextOrderId = 1
 // Typed Array
 const orderQueue: Order[] = []
 
-function addNewPizza(pizzaObj: Pizza) {
+function addNewPizza(pizzaObj: Pizza): void {
     menu.push(pizzaObj)
 }
 
-function placeOrder(pizzaName: string) {
+function placeOrder(pizzaName: string): Order | undefined {
     const selectedPizza = menu.find(pizzaObj => pizzaObj.name === pizzaName)
     if (!selectedPizza) {
         console.error(`${pizzaName} does not exist in the menu`)
@@ -41,7 +41,7 @@ function placeOrder(pizzaName: string) {
     return newOrder
 }
 
-function completeOrder(orderId: number) {
+function completeOrder(orderId: number): Order | undefined {
     const order = orderQueue.find(order => order.id === orderId)
 
     //handling the undefined case
@@ -51,7 +51,7 @@ function completeOrder(orderId: number) {
     }
 
     order.status = "completed"
-    return order
+    return order;
 }
 
 // NORMAL LOGIC

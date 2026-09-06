@@ -6,3 +6,4 @@
 - [Typing Arrays](typing-arrays.ts)
 - [Literal Types](literal-types.ts)
 - [UNIONS](unions.ts)
+- [Function Return Types](function-return-types.ts)
