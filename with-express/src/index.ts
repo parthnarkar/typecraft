@@ -1,31 +1,21 @@
 import express from 'express';
-import type { Express } from 'express';
+import type { Express, Request, Response } from 'express';
+import { pets } from './data/pet';
+import cors from 'cors'
 
 const app: Express = express();
 const PORT: number = 8000;
 
-type PetType = {
-    name: string,
-    species: string,
-    adopted: boolean,
-    age: number
-}
+app.use(cors());
 
-const pets: Omit<PetType, "adopted">[] = [
-    {
-        name: "Rubik",
-        species: "Cat",
-        age: 3
-    },
-    {
-        name: "Parth",
-        species: "Dog",
-        age: 10
-    }
-]
 
-app.get('/', (req, res) => {
-    return res.json(pets);
+app.get('/', (req: Request, res: Response): void => {
+    res.json(pets);
+})
+
+// 404 catch-all route
+app.use((req: Request, res: Response): void => {
+    res.status(404).json({ message: "Endpoint not found" });
 })
 
 app.listen(PORT, (): void => {
