@@ -4,11 +4,16 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose';
 
+// morgan used for terminal logging of HTTP requests
+import morgan from 'morgan';
+
 import { employeeRoutes } from './routes/employee.routes';
 
 const app: Express = express();
 dotenv.config();
 app.use(cors());
+
+app.use(morgan('dev'));
 
 type EnvTypes = string | undefined;
 
@@ -19,7 +24,7 @@ if (!MONGO_URL) {
     throw new Error("MONGO_URI is missing in .env");
 }
 
-if (!PORT){
+if (!PORT) {
     throw new Error("PORT doesn't exist")
 }
 

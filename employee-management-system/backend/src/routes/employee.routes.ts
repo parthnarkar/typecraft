@@ -1,10 +1,10 @@
 import express from 'express'
-import type { Response } from 'express';
-import { employees } from '../data/employees';
-import { Employee } from '../data/employees';
+import { getAllEmployees , getElementById } from '../controllers/employees.controllers';
 
 export const employeeRoutes = express.Router();
 
-employeeRoutes.get('/' , (req , res: Response<Employee[]>) => {
-    res.json(employees);
-})
+// fetch all employees
+employeeRoutes.get('/', getAllEmployees);
+
+// get employee by id
+employeeRoutes.get('/:id' , getElementById)

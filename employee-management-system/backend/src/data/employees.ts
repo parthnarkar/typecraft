@@ -1,4 +1,4 @@
-export type Employee = {
+export type EmployeeType = {
     employeeId: number;
     name: string,
     department: string,
@@ -6,7 +6,7 @@ export type Employee = {
     status: "active" | "inactive"
 }
 
-export const employees: Employee[] = [
+export const employees: EmployeeType[] = [
     {
         employeeId: 1,
         name: "Rahul Sharma",
