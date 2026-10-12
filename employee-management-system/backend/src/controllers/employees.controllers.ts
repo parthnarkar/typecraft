@@ -5,13 +5,34 @@ import mongoose from "mongoose";
 
 // get all employees
 export const getAllEmployees = async (
-    req: Request,
+    req: Request<{}, unknown, {}, Partial<EmployeeType>>,
     res: Response<EmployeeType[] | { message: string }>
 ) => {
     try {
-        const allUsers = await Employee.find();
+        const { name, department, status } = req.query;
 
-        res.status(200).json(allUsers);
+        const filter: Record<string, unknown> = {};
+
+        // search by name (partial)
+        if (name?.trim()) {
+            filter.name = {
+                $regex: name.trim(),
+                $options: "i"
+            };
+        }
+
+        if(department?.trim()){
+            filter.department = department.trim();
+        }
+
+        if(status?.trim()){
+            filter.status = status.trim();
+        }
+
+        const employees: EmployeeType[] = await Employee.find(filter);
+
+        res.status(200).json(employees);
+
     } catch (error) {
         console.log("Error fetching all employees");
         res.status(500).json({ message: "Internal server error" });
@@ -51,3 +72,4 @@ export const getElementById = async (
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
