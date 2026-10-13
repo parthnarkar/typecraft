@@ -6,6 +6,7 @@ export type EmployeeType = {
     status: "active" | "inactive"
 }
 
+// mock data
 export const employees: EmployeeType[] = [
     {
         employeeId: 1,
