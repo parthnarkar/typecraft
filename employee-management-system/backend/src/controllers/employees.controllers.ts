@@ -1,12 +1,17 @@
-import type { Express, Request, Response } from "express"
+import type { Request, Response } from "express"
 import Employee from "../models/employee.model"
 import type { EmployeeType } from "../data/employees";
 import mongoose from "mongoose";
-import { employeeRoutes } from "../routes/employee.routes";
+
+type EmployeeQueryType = {
+    name?: string,
+    department?: string,
+    status?: "active" | "inactive",
+}
 
 // get all employees
 export const getAllEmployees = async (
-    req: Request<{}, unknown, {}, Partial<EmployeeType>>,
+    req: Request<{}, unknown, {}, EmployeeQueryType>,
     res: Response<EmployeeType[] | { message: string }>
 ) => {
     try {
@@ -84,11 +89,16 @@ export const createEmployee = async (
     try {
         const { name, department, salary, status } = req.body;
 
-        if (!name?.trim() || !department?.trim() ||
-            salary === undefined || typeof salary !== "number" ||
-            !Number.isFinite(salary) || salary < 0) {
+        if (
+            !name?.trim() ||
+            !department?.trim() ||
+            salary === undefined ||
+            typeof salary !== "number" ||
+            !Number.isFinite(salary) ||
+            salary < 0 ||
+            (status !== undefined && !["active", "inactive"].includes(status))) {
             res.status(400).json({
-                message: "Please provide valid name, department and salary",
+                message: "Please provide valid name, department and salary and status",
             });
             return;
         }
@@ -128,14 +138,27 @@ export const updateEmployee = async (
             return;
         }
 
+        const { name, department, salary, status } = req.body;
+
+        const updates: Record<
+            string,
+            string | number
+        > = {}
+
+        if (name !== undefined) updates.name = name;
+        if (department !== undefined) updates.department = department;
+        if (salary !== undefined) updates.salary = salary;
+        if (status !== undefined) updates.status = status;
+
         const employee = await Employee.findByIdAndUpdate(
             id,
-            { $set: req.body },
+            { $set: updates },
             { new: true, runValidators: true }
         )
 
         if (!employee) {
             res.status(404).json({ message: "Employee not found" });
+            return;
         }
 
         res.status(200).json({ message: "Employee Updated Successfully", employee });
