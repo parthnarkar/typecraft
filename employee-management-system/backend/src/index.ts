@@ -13,6 +13,10 @@ const app: Express = express();
 dotenv.config();
 app.use(cors());
 
+// the below is required for putting 
+app.use(express.json())
+
+// using morgan
 app.use(morgan('dev'));
 
 type EnvTypes = string | undefined;
