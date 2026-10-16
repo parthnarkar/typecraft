@@ -12,9 +12,10 @@ export type Employee = {
 type EmployeeListProps = {
     employees: Employee[],
     onDelete: (id: string) => void
+    onEdit: (employee: Employee) => void
 }
 
-export const EmployeeList = ({ employees, onDelete }: EmployeeListProps): JSX.Element => {
+export const EmployeeList = ({ employees, onDelete, onEdit }: EmployeeListProps): JSX.Element => {
     if (employees.length === 0) {
         return (
             <p className="mt-8 text-center text-gray-500">
@@ -30,6 +31,7 @@ export const EmployeeList = ({ employees, onDelete }: EmployeeListProps): JSX.El
                     key={employee._id}
                     employee={employee}
                     onDelete={onDelete}
+                    onEdit={onEdit}
                 />
             ))}
         </div>

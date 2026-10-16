@@ -3,9 +3,10 @@ import type { Employee } from "./EmployeeList";
 type EmployeeCardProps = {
     employee: Employee;
     onDelete: (id: string) => void
+    onEdit: (employee: Employee) => void
 };
 
-const EmployeeCard = ({ employee, onDelete }: EmployeeCardProps) => {
+const EmployeeCard = ({ employee, onDelete, onEdit }: EmployeeCardProps) => {
     const { name, department, salary, status } = employee;
 
     return (
@@ -42,6 +43,7 @@ const EmployeeCard = ({ employee, onDelete }: EmployeeCardProps) => {
             <div className="mt-5 flex justify-end gap-2 border-t border-gray-100 pt-4">
                 <button
                     type="button"
+                    onClick={() => onEdit(employee)}
                     aria-label={`Edit ${name}`}
                     title="Edit employee"
                     className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50 hover:text-blue-600"

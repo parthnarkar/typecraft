@@ -12,8 +12,10 @@ function App() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     const fetchEmployees = async () => {
         try {
@@ -59,6 +61,35 @@ function App() {
         }
     };
 
+    const handleEditEmployee = (employee: Employee) => {
+        setSelectedEmployee(employee);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleUpdateEmployee = async (
+        id: string,
+        updatedData: {
+            name: string;
+            department: string;
+            salary: number;
+            status: "active" | "inactive";
+        }
+    ) => {
+        const response = await axios.put<Employee>(
+            `http://localhost:3000/employees/${id}`,
+            updatedData
+        );
+
+        setEmployees((currentEmployees) =>
+            currentEmployees.map((employee) =>
+                employee._id === id ? response.data : employee
+            )
+        );
+
+        setIsAddDialogOpen(false);
+        setSelectedEmployee(null);
+    }
+
     return (
         <div className="p-8">
             <div className="flex items-center justify-between gap-6">
@@ -85,13 +116,31 @@ function App() {
                     {error}
                 </p>
             ) : (
-                <EmployeeList employees={employees} onDelete={handleDeleteEmployee} />
+                <EmployeeList
+                    employees={employees}
+                    onDelete={handleDeleteEmployee}
+                    onEdit={handleEditEmployee}
+                />
             )}
 
             {isAddDialogOpen && (
                 <AddEmployeeDialog
                     onClose={() => setIsAddDialogOpen(false)}
                     onSubmit={handleAddEmployee}
+                />
+            )}
+
+            {isEditDialogOpen && selectedEmployee && (
+                <AddEmployeeDialog
+                    key={selectedEmployee._id}
+                    employee={selectedEmployee}
+                    onClose={() => {
+                        setIsEditDialogOpen(false);
+                        setSelectedEmployee(null);
+                    }}
+                    onSubmit={(updatedData) =>
+                        handleUpdateEmployee(selectedEmployee._id, updatedData)
+                    }
                 />
             )}
         </div>

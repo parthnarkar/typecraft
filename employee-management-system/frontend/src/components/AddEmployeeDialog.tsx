@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { Employee } from "./EmployeeList";
 
 type AddEmployeeDialogPropsOnSubmit = {
     name: string;
@@ -10,16 +11,22 @@ type AddEmployeeDialogPropsOnSubmit = {
 type AddEmployeeDialogProps = {
     onClose: () => void;
     onSubmit: (employee: AddEmployeeDialogPropsOnSubmit) => void;
+    employee?: Employee
 };
 
 const AddEmployeeDialog = ({
     onClose,
     onSubmit,
+    employee
 }: AddEmployeeDialogProps) => {
-    const [name, setName] = useState("");
-    const [department, setDepartment] = useState("");
-    const [salary, setSalary] = useState("");
-    const [status, setStatus] = useState<"active" | "inactive">("active");
+    const [name, setName] = useState(employee?.name ?? "");
+    const [department, setDepartment] = useState(employee?.department ?? "");
+    const [salary, setSalary] = useState(
+        employee ? String(employee.salary) : ""
+    );
+    const [status, setStatus] = useState<"active" | "inactive">(
+        employee?.status ?? "active"
+    );
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
