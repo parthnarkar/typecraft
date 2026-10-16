@@ -3,6 +3,9 @@ import axios from "axios";
 import EmployeeList from "./components/EmployeeList"
 import PageHeader from "./components/PageHeader"
 import type { Employee } from "./components/EmployeeList";
+import AddEmployeeDialog from "./components/AddEmployeeDialog";
+
+type NewEmployee = Omit<Employee, "_id" | "employeeId">;
 
 function App() {
 
@@ -10,24 +13,37 @@ function App() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
 
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const response = await axios.get<Employee[]>("http://localhost:3000/employees")
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
 
-                setEmployees(response.data);
-            }
-            catch (error) {
-                console.error("Failed to fetch employees:", error);
-                setError("Failed to load employees. Please try again.");
-            }
-            finally {
-                setLoading(false);
-            }
+    const fetchEmployees = async () => {
+        try {
+            const response = await axios.get<Employee[]>("http://localhost:3000/employees")
+
+            setEmployees(response.data);
         }
+        catch (error) {
+            console.error("Failed to fetch employees:", error);
+            setError("Failed to load employees. Please try again.");
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
+    useEffect(() => {
         fetchEmployees();
     }, [])
+
+    const handleAddEmployee = async (employee: NewEmployee) => {
+        const response = await axios.post<Employee>("http://localhost:3000/employees", employee)
+
+        setEmployees((currentEmployees) => [
+            ...currentEmployees,
+            response.data
+        ]);
+
+        setIsAddDialogOpen(false);
+    }
 
     return (
         <div className="p-8">
@@ -39,6 +55,7 @@ function App() {
 
                 <button
                     type="button"
+                    onClick={() => setIsAddDialogOpen(true)}
                     className="rounded-xl border border-blue-400 bg-blue-100 p-3 text-blue-700 hover:bg-blue-200"
                 >
                     Add Employee
@@ -55,6 +72,13 @@ function App() {
                 </p>
             ) : (
                 <EmployeeList employees={employees} />
+            )}
+
+            {isAddDialogOpen && (
+                <AddEmployeeDialog
+                    onClose={() => setIsAddDialogOpen(false)}
+                    onSubmit={handleAddEmployee}
+                />
             )}
         </div>
     );
