@@ -45,6 +45,20 @@ function App() {
         setIsAddDialogOpen(false);
     }
 
+    const handleDeleteEmployee = async (id: string) => {
+        try {
+            await axios.delete(`http://localhost:3000/employees/${id}`);
+
+            setEmployees((currentEmployees) =>
+                currentEmployees.filter(
+                    (employee) => employee._id !== id
+                )
+            );
+        } catch (error) {
+            console.error("Failed to delete employee:", error);
+        }
+    };
+
     return (
         <div className="p-8">
             <div className="flex items-center justify-between gap-6">
@@ -71,7 +85,7 @@ function App() {
                     {error}
                 </p>
             ) : (
-                <EmployeeList employees={employees} />
+                <EmployeeList employees={employees} onDelete={handleDeleteEmployee} />
             )}
 
             {isAddDialogOpen && (

@@ -2,9 +2,10 @@ import type { Employee } from "./EmployeeList";
 
 type EmployeeCardProps = {
     employee: Employee;
+    onDelete: (id: string) => void
 };
 
-const EmployeeCard = ({ employee }: EmployeeCardProps) => {
+const EmployeeCard = ({ employee, onDelete }: EmployeeCardProps) => {
     const { name, department, salary, status } = employee;
 
     return (
@@ -21,8 +22,8 @@ const EmployeeCard = ({ employee }: EmployeeCardProps) => {
 
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${status === "active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
                         }`}
                 >
                     {status === "active" ? "Active" : "Inactive"}
@@ -63,6 +64,7 @@ const EmployeeCard = ({ employee }: EmployeeCardProps) => {
 
                 <button
                     type="button"
+                    onClick={() => onDelete(employee._id)}
                     aria-label={`Delete ${name}`}
                     title="Delete employee"
                     className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-red-50 hover:text-red-600"

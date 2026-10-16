@@ -10,10 +10,11 @@ export type Employee = {
 }
 
 type EmployeeListProps = {
-    employees: Employee[]
+    employees: Employee[],
+    onDelete: (id: string) => void
 }
 
-export const EmployeeList = ({ employees }: EmployeeListProps): JSX.Element => {
+export const EmployeeList = ({ employees, onDelete }: EmployeeListProps): JSX.Element => {
     if (employees.length === 0) {
         return (
             <p className="mt-8 text-center text-gray-500">
@@ -28,6 +29,7 @@ export const EmployeeList = ({ employees }: EmployeeListProps): JSX.Element => {
                 <EmployeeCard
                     key={employee._id}
                     employee={employee}
+                    onDelete={onDelete}
                 />
             ))}
         </div>
