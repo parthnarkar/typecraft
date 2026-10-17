@@ -17,11 +17,9 @@ function App() {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-    const [searchName, setSearchName] = useState(
-        () => new URLSearchParams(window.location.search).get("name") ?? "");
+    const [searchName, setSearchName] = useState(() => new URLSearchParams(window.location.search).get("name") ?? "");
 
-    const [searchDepartment, setSearchDepartment] = useState(
-        () => new URLSearchParams(window.location.search).get("department") ?? "");
+    const [searchDepartment, setSearchDepartment] = useState(() => new URLSearchParams(window.location.search).get("department") ?? "");
 
     type EmployeeStatus = "" | "active" | "inactive";
 

@@ -1,32 +1,31 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The frontend of the Employee Management System, built using React, TypeScript and Tailwind CSS.
 
-Currently, two official plugins are available:
+I wanted to build something practical while learning TypeScript, so I built this frontend to manage employee records and understand how React handles data and UI updates.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### What's implemented?
 
-## React Compiler
+- Display employee records as cards
+- Add, edit and delete employees
+- Search employees by name and department
+- Filter employees by active or inactive status
+- Sort employees by name (A–Z, Z–A) and salary (high to low, low to high)
+- Sync search and status filters with URL query parameters
+- Connect the UI to the backend using Axios
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Tech Stack
 
-## Expanding the Oxlint configuration
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- Axios
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### Run locally
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Make sure the backend is running before using the application.
