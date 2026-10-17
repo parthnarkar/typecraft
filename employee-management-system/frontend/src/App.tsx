@@ -23,6 +23,40 @@ function App() {
     const [searchDepartment, setSearchDepartment] = useState(
         () => new URLSearchParams(window.location.search).get("department") ?? "");
 
+    type EmployeeStatus = "" | "active" | "inactive";
+
+    type SortOption = "az" | "za" | "salary-high" | "salary-low";
+
+    const [statusFilter, setStatusFilter] = useState<EmployeeStatus>(
+        () => {
+            const status = new URLSearchParams(window.location.search).get("status");
+            return status === "active" || status === "inactive" ? status : "";
+        }
+    );
+
+    const [sortBy, setSortBy] = useState<SortOption>("az");
+
+
+    const sortedEmployees = [...employees].sort((a, b) => {
+        switch (sortBy) {
+            case "az":
+                return a.name.localeCompare(b.name);
+
+            case "za":
+                return b.name.localeCompare(a.name);
+
+            case "salary-high":
+                return b.salary - a.salary;
+
+            case "salary-low":
+                return a.salary - b.salary;
+
+            default:
+                return 0;
+        }
+    });
+
+
 
     useEffect(() => {
         let cancelled = false;
@@ -37,7 +71,8 @@ function App() {
                     {
                         params: {
                             name: searchName.trim() || undefined,
-                            department: searchDepartment.trim() || undefined
+                            department: searchDepartment.trim() || undefined,
+                            status: statusFilter || undefined
                         }
                     }
                 );
@@ -63,7 +98,7 @@ function App() {
         return () => {
             cancelled = true;
         };
-    }, [searchName, searchDepartment]);
+    }, [searchName, searchDepartment, statusFilter]);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -148,101 +183,260 @@ function App() {
         setSelectedEmployee(null);
     }
 
+
     return (
-        <div className="p-8">
-            <div className="flex items-center justify-between gap-6">
-                <PageHeader
-                    title="Employee Management System"
-                    description="Manage your employees in one place"
-                />
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div className="mx-auto max-w-7xl space-y-8">
 
+                {/* Header */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <PageHeader
+                        title="Employee Management System"
+                        description="Manage your employees in one place"
+                    />
 
-                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                        <label
-                            htmlFor="search-name"
-                            className="mb-2 block text-sm font-medium text-gray-700"
+                    <button
+                        type="button"
+                        onClick={() => setIsAddDialogOpen(true)}
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
                         >
-                            Search by name
-                        </label>
-
-                        <input
-                            id="search-name"
-                            type="search"
-                            placeholder="Enter employee name..."
-                            value={searchName}
-                            onChange={(event) => setSearchName(event.target.value)}
-                            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="search-department"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Search by department
-                        </label>
-
-                        <input
-                            id="search-department"
-                            type="search"
-                            placeholder="Enter department..."
-                            value={searchDepartment}
-                            onChange={(event) => setSearchDepartment(event.target.value)}
-                            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        />
-                    </div>
+                            <path d="M12 5v14" />
+                            <path d="M5 12h14" />
+                        </svg>
+                        Add Employee
+                    </button>
                 </div>
 
+                {/* Search and filters */}
+                <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+                    <div className="mb-5">
+                        <h2 className="text-base font-semibold text-gray-900">
+                            Find employees
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Search, filter and sort your employee records.
+                        </p>
+                    </div>
 
-                <button
-                    type="button"
-                    onClick={() => setIsAddDialogOpen(true)}
-                    className="rounded-xl border border-blue-400 bg-blue-100 p-3 text-blue-700 hover:bg-blue-200"
-                >
-                    Add Employee
-                </button>
+                    {/* Search bars */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label
+                                htmlFor="search-name"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
+                                Employee name
+                            </label>
+
+                            <div className="relative">
+                                <svg
+                                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                >
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" />
+                                </svg>
+
+                                <input
+                                    id="search-name"
+                                    type="search"
+                                    placeholder="Search by name..."
+                                    value={searchName}
+                                    onChange={(event) => setSearchName(event.target.value)}
+                                    className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="search-department"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
+                                Department
+                            </label>
+
+                            <div className="relative">
+                                <svg
+                                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <rect x="3" y="7" width="18" height="14" rx="2" />
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                </svg>
+
+                                <input
+                                    id="search-department"
+                                    type="search"
+                                    placeholder="Search by department..."
+                                    value={searchDepartment}
+                                    onChange={(event) => setSearchDepartment(event.target.value)}
+                                    className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Status and sorting */}
+                    <div className="mt-6 flex flex-col gap-5 border-t border-gray-100 pt-5 sm:flex-row sm:items-end sm:justify-between">
+                        <fieldset>
+                            <legend className="mb-3 text-sm font-medium text-gray-700">
+                                Employment status
+                            </legend>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                <label
+                                    className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${statusFilter === "active"
+                                            ? "border-green-300 bg-green-50 text-green-700"
+                                            : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="employee-status"
+                                        value="active"
+                                        checked={statusFilter === "active"}
+                                        onChange={() => setStatusFilter("active")}
+                                        className="h-4 w-4 accent-green-600"
+                                    />
+                                    Active
+                                </label>
+
+                                <label
+                                    className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${statusFilter === "inactive"
+                                            ? "border-gray-300 bg-gray-100 text-gray-700"
+                                            : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="employee-status"
+                                        value="inactive"
+                                        checked={statusFilter === "inactive"}
+                                        onChange={() => setStatusFilter("inactive")}
+                                        className="h-4 w-4 accent-gray-600"
+                                    />
+                                    Inactive
+                                </label>
+
+                                {statusFilter && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setStatusFilter("")}
+                                        className="rounded-lg px-2 py-2 text-sm text-blue-600 transition hover:bg-blue-50"
+                                    >
+                                        Clear filter
+                                    </button>
+                                )}
+                            </div>
+                        </fieldset>
+
+                        <div className="w-full sm:w-56">
+                            <label
+                                htmlFor="sort-employees"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
+                                Sort employees
+                            </label>
+
+                            <select
+                                id="sort-employees"
+                                value={sortBy}
+                                onChange={(event) =>
+                                    setSortBy(event.target.value as SortOption)
+                                }
+                                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            >
+                                <option value="az">A–Z · Name</option>
+                                <option value="za">Z–A · Name</option>
+                                <option value="salary-high">↑ High Salary</option>
+                                <option value="salary-low">↓ Low Salary</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Employee list */}
+                <section>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Employees
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-500">
+                            View and manage your employee records.
+                        </p>
+                    </div>
+
+                    {loading ? (
+                        <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center">
+                            <p className="text-sm text-gray-500">
+                                Loading employees...
+                            </p>
+                        </div>
+                    ) : error ? (
+                        <div className="rounded-2xl border border-red-200 bg-white px-4 py-12 text-center">
+                            <p className="text-sm text-red-600">{error}</p>
+                        </div>
+                    ) : (
+                        <EmployeeList
+                            employees={sortedEmployees}
+                            onDelete={handleDeleteEmployee}
+                            onEdit={handleEditEmployee}
+                        />
+                    )}
+                </section>
+
+                {/* Add employee dialog */}
+                {isAddDialogOpen && (
+                    <AddEmployeeDialog
+                        onClose={() => setIsAddDialogOpen(false)}
+                        onSubmit={handleAddEmployee}
+                    />
+                )}
+
+                {/* Edit employee dialog */}
+                {isEditDialogOpen && selectedEmployee && (
+                    <AddEmployeeDialog
+                        key={selectedEmployee._id}
+                        employee={selectedEmployee}
+                        onClose={() => {
+                            setIsEditDialogOpen(false);
+                            setSelectedEmployee(null);
+                        }}
+                        onSubmit={(updatedData) =>
+                            handleUpdateEmployee(selectedEmployee._id, updatedData)
+                        }
+                    />
+                )}
             </div>
-
-            {loading ? (
-                <p className="mt-8 text-center text-gray-500">
-                    Loading employees...
-                </p>
-            ) : error ? (
-                <p className="mt-8 text-center text-red-500">
-                    {error}
-                </p>
-            ) : (
-                <EmployeeList
-                    employees={employees}
-                    onDelete={handleDeleteEmployee}
-                    onEdit={handleEditEmployee}
-                />
-            )}
-
-            {isAddDialogOpen && (
-                <AddEmployeeDialog
-                    onClose={() => setIsAddDialogOpen(false)}
-                    onSubmit={handleAddEmployee}
-                />
-            )}
-
-            {isEditDialogOpen && selectedEmployee && (
-                <AddEmployeeDialog
-                    key={selectedEmployee._id}
-                    employee={selectedEmployee}
-                    onClose={() => {
-                        setIsEditDialogOpen(false);
-                        setSelectedEmployee(null);
-                    }}
-                    onSubmit={(updatedData) =>
-                        handleUpdateEmployee(selectedEmployee._id, updatedData)
-                    }
-                />
-            )}
         </div>
     );
+
 }
 
 export default App;
