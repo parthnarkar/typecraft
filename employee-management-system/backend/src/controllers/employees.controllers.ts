@@ -28,9 +28,10 @@ export const getAllEmployees = async (
         }
 
         if (department?.trim()) {
-            let trimmed = department.trim();
-
-            filter.department = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+            filter.department = {
+                $regex: department.trim(),
+                $options: "i"
+            }
         }
 
         if (status?.trim()) {
@@ -153,7 +154,7 @@ export const updateEmployee = async (
         const employee = await Employee.findByIdAndUpdate(
             id,
             { $set: updates },
-            { new: true, runValidators: true }
+            { returnDocument: "after", runValidators: true }
         )
 
         if (!employee) {

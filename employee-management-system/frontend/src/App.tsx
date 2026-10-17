@@ -17,24 +17,77 @@ function App() {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-    const fetchEmployees = async () => {
-        try {
-            const response = await axios.get<Employee[]>("http://localhost:3000/employees")
+    const [searchName, setSearchName] = useState(
+        () => new URLSearchParams(window.location.search).get("name") ?? "");
 
-            setEmployees(response.data);
-        }
-        catch (error) {
-            console.error("Failed to fetch employees:", error);
-            setError("Failed to load employees. Please try again.");
-        }
-        finally {
-            setLoading(false);
-        }
-    }
+    const [searchDepartment, setSearchDepartment] = useState(
+        () => new URLSearchParams(window.location.search).get("department") ?? "");
+
 
     useEffect(() => {
+        let cancelled = false;
+
+        const fetchEmployees = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await axios.get<Employee[]>(
+                    "http://localhost:3000/employees",
+                    {
+                        params: {
+                            name: searchName.trim() || undefined,
+                            department: searchDepartment.trim() || undefined
+                        }
+                    }
+                );
+
+                if (!cancelled) {
+                    setEmployees(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch employees:", error);
+
+                if (!cancelled) {
+                    setError("Failed to load employees. Please try again.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
         fetchEmployees();
-    }, [])
+
+        return () => {
+            cancelled = true;
+        };
+    }, [searchName, searchDepartment]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        if (searchName.trim()) {
+            params.set("name", searchName.trim());
+        } else {
+            params.delete("name");
+        }
+
+        if (searchDepartment.trim()) {
+            params.set("department", searchDepartment.trim());
+        } else {
+            params.delete("department");
+        }
+
+        const query = params.toString();
+
+        const newUrl = query
+            ? `${window.location.pathname}?${query}`
+            : window.location.pathname;
+
+        window.history.replaceState({}, "", newUrl);
+    }, [searchName, searchDepartment]);
 
     const handleAddEmployee = async (employee: NewEmployee) => {
         const response = await axios.post<Employee>("http://localhost:3000/employees", employee)
@@ -75,14 +128,19 @@ function App() {
             status: "active" | "inactive";
         }
     ) => {
-        const response = await axios.put<Employee>(
+        const response = await axios.put<{
+            message: string,
+            employee: Employee
+        }>(
             `http://localhost:3000/employees/${id}`,
             updatedData
         );
 
+        const updatedEmployee = response.data.employee;
+
         setEmployees((currentEmployees) =>
             currentEmployees.map((employee) =>
-                employee._id === id ? response.data : employee
+                employee._id === id ? updatedEmployee : employee
             )
         );
 
@@ -97,6 +155,46 @@ function App() {
                     title="Employee Management System"
                     description="Manage your employees in one place"
                 />
+
+
+                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label
+                            htmlFor="search-name"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
+                            Search by name
+                        </label>
+
+                        <input
+                            id="search-name"
+                            type="search"
+                            placeholder="Enter employee name..."
+                            value={searchName}
+                            onChange={(event) => setSearchName(event.target.value)}
+                            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="search-department"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
+                            Search by department
+                        </label>
+
+                        <input
+                            id="search-department"
+                            type="search"
+                            placeholder="Enter department..."
+                            value={searchDepartment}
+                            onChange={(event) => setSearchDepartment(event.target.value)}
+                            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        />
+                    </div>
+                </div>
+
 
                 <button
                     type="button"
@@ -145,7 +243,6 @@ function App() {
             )}
         </div>
     );
-
 }
 
 export default App;
